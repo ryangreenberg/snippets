@@ -2,7 +2,7 @@
 
 require 'set'
 
-maze = [
+small_maze = [
   [0, 0, 0, 0, 0],
   [0, 1, 0, 1, 0],
   [0, 1, 0, 1, 0],
@@ -10,7 +10,7 @@ maze = [
   [0, 1, 0, 0, 0]
 ]
 
-maze_2 = [
+medium_maze = [
   [0, 0, 0, 0, 0, 0, 0, 0],
   [0, 1, 1, 1, 1, 1, 1, 0],
   [0, 0, 0, 0, 0, 0, 1, 0],
@@ -28,7 +28,7 @@ def find_path(maze, start, finish)
   fringe = []
   visited_positions = Set.new
 
-  while current_position != finish
+  while current_position && current_position != finish
     visited_positions << current_position
     current_path << current_position
     moves_with_paths = possible_moves(maze, current_position).map {|ea| [ea, current_path.dup]}
@@ -38,7 +38,12 @@ def find_path(maze, start, finish)
     end
   end
 
-  current_path << current_position
+  if current_position == finish
+    current_path << current_position
+  else
+    # No solution
+    []
+  end
 end
 
 def possible_moves(maze, position)
@@ -69,7 +74,7 @@ def directions(path)
   end
 end
 
-def pretty_print(maze, position = nil)
+def pretty_print(maze, position = nil, path = [])
   max_x, max_y = maze.first.size, maze.size
   top = "-" * (max_x + 2)
   y = 0
@@ -81,6 +86,8 @@ def pretty_print(maze, position = nil)
         "X"
       elsif position && y == position[1] && x == position[0]
         '*'
+      elsif path.include?([x, y])
+        '.'
       else
         " "
       end.tap { x += 1 }
@@ -89,7 +96,16 @@ def pretty_print(maze, position = nil)
   "\n" + top
 end
 
-puts pretty_print(maze_2)
-solution_path = find_path(maze_2, [0,0], [7,8])
-puts solution_path.inspect
-puts directions(solution_path).inspect
+[small_maze, medium_maze].each do |maze|
+  puts pretty_print(maze)
+  goal = [maze.first.size - 1, maze.size - 1]
+  solution_path = find_path(maze, [0,0], goal)
+  if solution_path.empty?
+    puts "No path found through maze."
+  else
+    puts "Found path through maze in #{solution_path.size} steps."
+    puts solution_path.inspect
+    puts directions(solution_path).inspect
+    puts pretty_print(maze, goal, solution_path)
+  end
+end
