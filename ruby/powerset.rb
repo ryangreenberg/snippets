@@ -10,5 +10,18 @@ def powerset(*args)
   end
 end
 
+# Recursive solution
+def powerset_recursive(*elements)
+  if elements.empty?
+    [ [] ]
+  else
+    head = elements.shift
+    tail = elements
+    tail_sets = powerset_recursive(*tail)
+    tail_sets + tail_sets.map {|ea| ea + [ head ] }
+  end
+end
+
 puts powerset(1, 2, 3).inspect
+puts powerset_recursive(1, 2, 3).inspect
 # => [[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]]
